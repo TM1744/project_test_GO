@@ -2,6 +2,6 @@ package model
 
 type IModel interface {
 	GetUniqueFields() string
-	Fields() string	
+	Validate() error
 }
 

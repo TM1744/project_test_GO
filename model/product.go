@@ -26,6 +26,10 @@ func (p *Product) Fields() string {
 	return "ID: " + p.Name
 }
 
+func (p *Product) Validate() error {
+	return nil
+}
+
 // func (p *Product) ToString() (string, error) {
 // 	id := converter.Int64ToString(int64(p.ID))
 // 	category := converter.Int64ToString(*p.CategoryID)
