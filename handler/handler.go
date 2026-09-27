@@ -20,8 +20,8 @@ type Handler[Model model.IModel, CRequest request.IRequest[Model], Response resp
 func InitHandler[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]](
 		service *service.Service[Model, CRequest, Response],
 		newCRequest func () CRequest,
-	) Handler[Model, CRequest, Response] {
-	return Handler[Model, CRequest, Response]{
+	) *Handler[Model, CRequest, Response] {
+	return &Handler[Model, CRequest, Response]{
 		Service: service,
 		newCRequest: newCRequest,
 	}

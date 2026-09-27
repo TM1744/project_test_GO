@@ -21,8 +21,8 @@ func InitService[
 	Response response.IResponse[Model]](
 	repository *repository.Repository[Model],
 	newModel func() Model,
-	newResponse func() Response) Service[Model, CRequest, Response] {
-	return Service[Model, CRequest, Response]{
+	newResponse func() Response) *Service[Model, CRequest, Response] {
+	return &Service[Model, CRequest, Response]{
 		Repository:  repository,
 		newModel:    newModel,
 		newResponse: newResponse,

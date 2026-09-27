@@ -7,7 +7,7 @@ import (
 
 
 type ProductRepository struct {
-	Repository[*model.Product]
+	*Repository[*model.Product]
 }
 
 func NewProductRepository(db *gorm.DB) *ProductRepository {

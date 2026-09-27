@@ -12,8 +12,8 @@ type Repository[Model model.IModel] struct {
 	Database *gorm.DB
 }
 
-func InitRepository[Model model.IModel](database *gorm.DB) Repository[Model] {
-	return Repository[Model]{Database: database}
+func InitRepository[Model model.IModel](database *gorm.DB) *Repository[Model] {
+	return &Repository[Model]{Database: database}
 }
 
 func (r *Repository[Model]) Create(entity Model) error {
