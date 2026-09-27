@@ -4,7 +4,7 @@ import (
 	"errors"
 	"projeto-teste/fail"
 	"projeto-teste/model"
-
+	"strings"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ func (r *Repository[Model]) Create(entity Model) error {
 	err := r.Database.Create(entity)
 
 	if err != nil {
-		if errors.Is(err.Error, gorm.ErrDuplicatedKey) {
+		if strings.Contains(err.Error.Error(), "UNIQUE constraint failed") {
 			return fail.StringToBadRequest(entity.GetUniqueFields() + " must be unique")
 		} else {
 			return fail.ErrorToInternalServerError(err.Error)
