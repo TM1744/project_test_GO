@@ -2,10 +2,10 @@ package repository
 
 import (
 	"errors"
+	"gorm.io/gorm"
 	"projeto-teste/fail"
 	"projeto-teste/model"
 	"strings"
-	"gorm.io/gorm"
 )
 
 type Repository[Model model.IModel] struct {
@@ -17,13 +17,13 @@ func InitRepository[Model model.IModel](database *gorm.DB) Repository[Model] {
 }
 
 func (r *Repository[Model]) Create(entity Model) error {
-	err := r.Database.Create(entity)
+	err := r.Database.Create(entity).Error
 
 	if err != nil {
-		if strings.Contains(err.Error.Error(), "UNIQUE constraint failed") {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return fail.StringToBadRequest(entity.GetUniqueFields() + " must be unique")
 		} else {
-			return fail.ErrorToInternalServerError(err.Error)
+			return fail.ErrorToInternalServerError(err)
 		}
 	}
 
@@ -31,13 +31,28 @@ func (r *Repository[Model]) Create(entity Model) error {
 }
 
 func (r *Repository[Model]) Read(entity Model, id *int64) error {
-	err := r.Database.First(entity, id)
+	err := r.Database.First(entity, id).Error
 
 	if err != nil {
-		if errors.Is(err.Error, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fail.StringToBadRequest("record not found. Check the ID")
 		} else {
-			return fail.ErrorToInternalServerError(err.Error)
+			return fail.ErrorToInternalServerError(err)
+		}
+	}
+
+	return nil
+}
+
+func (r *Repository[Model]) Delete(model Model, id *int64) error {
+
+	err := r.Database.Delete(model, id).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fail.StringToBadRequest("record not found. Check the ID")
+		} else {
+			return fail.ErrorToInternalServerError(err)
 		}
 	}
 

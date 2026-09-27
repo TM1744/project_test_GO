@@ -46,18 +46,16 @@ func (h *Handler[Model, CRequest, Response]) Create(ctx *gin.Context) {
 }
 
 func (h *Handler[Model, CRequest, Response]) Read(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	println(id)
-
-	number, err := converter.StringToInt64(id)
+	var err error
+	
+	id, err := catchID(ctx)
 
 	if err != nil {
 		handleError(ctx, err)
 		return
 	}
 
-	response, err := h.Service.Read(&number)
+	response, err := h.Service.Read(id)
 
 	if err != nil {
 		handleError(ctx, err)
@@ -65,6 +63,26 @@ func (h *Handler[Model, CRequest, Response]) Read(ctx *gin.Context) {
 	}
 
 	sendObject(ctx, 200, response)
+}
+
+func (h *Handler[Model, CRequest, Response]) Delete(ctx *gin.Context) {
+	var err error
+
+	id, err := catchID(ctx)
+
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	err = h.Service.Delete(id)
+
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	sendSuccess(ctx, 200)
 }
 
 var (
@@ -106,4 +124,10 @@ func sendSuccess(context *gin.Context, statusCode int) {
 	context.JSON(statusCode, gin.H{
 		"message": "operation successfully completed!",
 	})
+}
+
+func catchID(ctx *gin.Context) (*int64, error) {
+	id := ctx.Param("id")
+	number, err := converter.StringToInt64(id)
+	return &number, err
 }
