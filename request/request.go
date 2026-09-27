@@ -1,13 +1,8 @@
 package request
 
-import (
+import "projeto-teste/model"
 
-)
-
-
-type IRequest[M any] interface {
+type IRequest[Model model.IModel] interface {
 	Validate() error
-	Instance()
-	ToModel() M
+	ToModel() Model
 }
-

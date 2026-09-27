@@ -1,8 +1,7 @@
 package model
 
-type IModel[R any] interface {
+type IModel interface {
 	GetUniqueFields() string
 	Fields() string	
-	ToResponse() R
 }
 

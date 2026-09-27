@@ -19,10 +19,6 @@ type ProductRequest struct {
 	Unit          enum.MeasurementUnit `json:"unit"`
 }
 
-func (p *ProductRequest) Instance() {
-	
-}
-
 func (p *ProductRequest) Validate() error {
 
 	category := "category ID"

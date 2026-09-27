@@ -1,8 +1,7 @@
 package response
 
-import (
-)
+import "projeto-teste/model"
 
-type IResponse interface {
-	Print()
+type IResponse[Model model.IModel] interface {
+	FromModel(Model)
 }

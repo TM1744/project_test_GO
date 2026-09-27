@@ -6,19 +6,33 @@ import (
 	"projeto-teste/repository"
 	"projeto-teste/request"
 	"projeto-teste/response"
+	"projeto-teste/validator"
 )
 
-type Service[RS response.IResponse, M model.IModel[RS], RQ request.IRequest[M]] struct {
-	Repository *repository.Repository[M, RS]
+type Service[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]] struct {
+	Repository  *repository.Repository[Model]
+	newModel    func() Model
+	newResponse func() Response
 }
 
-func InitService[RS response.IResponse, M model.IModel[RS], RQ request.IRequest[M]](repository *repository.Repository[M, RS]) Service[RS, M, RQ] {
-	return Service[RS, M, RQ]{Repository: repository}
+func InitService[
+	Model model.IModel, 
+	CRequest request.IRequest[Model], 
+	Response response.IResponse[Model]](
+		repository *repository.Repository[Model], 
+		newModel func() Model, 
+		newResponse func () Response) Service[Model, CRequest, Response] {
+	return Service[Model, CRequest, Response]{
+		Repository: repository,
+		newModel: newModel,
+		newResponse: newResponse,
+	}
 }
 
-func (s *Service[RS, M, RQ]) Create(request RQ) (RS, error) {
+func (s *Service[Model, CRequest, Response]) Create(request CRequest) (Response, error) {
 	var err error
-	var response RS
+	response := s.newResponse()
+	entity := s.newModel()
 
 	err = request.Validate()
 
@@ -26,7 +40,7 @@ func (s *Service[RS, M, RQ]) Create(request RQ) (RS, error) {
 		return response, fail.ErrorToBadRequest(err)
 	}
 
-	entity := request.ToModel()
+	entity = request.ToModel()
 
 	err = s.Repository.Create(entity)
 
@@ -34,7 +48,30 @@ func (s *Service[RS, M, RQ]) Create(request RQ) (RS, error) {
 		return response, err
 	}
 
-	response = entity.ToResponse()
+	response.FromModel(entity)
+
+	return response, nil
+}
+
+func (s *Service[Model, CRequest, Response]) Read(id *int64) (Response, error) {
+	var err error
+	response := s.newResponse()
+
+	err = validator.ValidIntNotLessThanZero(id, "ID")
+
+	if err != nil {
+		return response, fail.ErrorToBadRequest(err)
+	}
+
+	entity := s.newModel()
+
+	err = s.Repository.Read(entity, id)
+
+	if err != nil {
+		return response, err
+	}
+
+	response.FromModel(entity)
 
 	return response, nil
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"projeto-teste/converter"
 	"projeto-teste/fail"
 	"projeto-teste/model"
 	"projeto-teste/request"
@@ -11,16 +12,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler[RS response.IResponse, M model.IModel[RS], CRQ request.IRequest[M]] struct {
-	Service *service.Service[RS, M, CRQ]
+type Handler[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]] struct {
+	Service     *service.Service[Model, CRequest, Response]
+	newCRequest func() CRequest
 }
 
-func InitHandler[RS response.IResponse, M model.IModel[RS], CRQ request.IRequest[M]](service *service.Service[RS, M, CRQ]) Handler[RS, M, CRQ] {
-	return Handler[RS, M, CRQ]{Service: service}
+func InitHandler[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]](
+		service *service.Service[Model, CRequest, Response],
+		newCRequest func () CRequest,
+	) Handler[Model, CRequest, Response] {
+	return Handler[Model, CRequest, Response]{
+		Service: service,
+		newCRequest: newCRequest,
+	}
 }
 
-func (h *Handler[RS, M, CRQ]) Create(ctx *gin.Context) {
-	var request CRQ
+func (h *Handler[Model, CRequest, Response]) Create(ctx *gin.Context) {
+	request := h.newCRequest()
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		handleError(ctx, fail.ErrorToBadRequest(err))
@@ -35,6 +43,28 @@ func (h *Handler[RS, M, CRQ]) Create(ctx *gin.Context) {
 	}
 
 	sendObject(ctx, 201, response)
+}
+
+func (h *Handler[Model, CRequest, Response]) Read(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	println(id)
+
+	number, err := converter.StringToInt64(id)
+
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	response, err := h.Service.Read(&number)
+
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	sendObject(ctx, 200, response)
 }
 
 var (

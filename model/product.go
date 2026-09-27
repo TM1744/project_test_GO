@@ -2,8 +2,6 @@ package model
 
 import (
 	"projeto-teste/enum"
-	"projeto-teste/response"
-
 	"gorm.io/gorm"
 )
 
@@ -22,23 +20,6 @@ type Product struct {
 
 func (p *Product) GetUniqueFields() string {
 	return "name"
-}
-
-func (p *Product) ToResponse() response.ProductResponse {
-	return response.ProductResponse{
-		ID:            p.ID,
-		CategoryID:    p.CategoryID,
-		SubcategoryID: p.SubcategoryID,
-		CreatedAt:     p.CreatedAt,
-		UpdatedAt:     p.UpdatedAt,
-		Name:          p.Name,
-		Brand:         p.Brand,
-		Description:   p.Description,
-		SellingPrice:  p.SellingPrice,
-		CostPrice:     p.CostPrice,
-		Stock:         p.Stock,
-		Unit:          p.Unit,
-	}
 }
 
 func (p *Product) Fields() string {

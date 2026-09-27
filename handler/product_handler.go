@@ -8,11 +8,14 @@ import (
 )
 
 type ProductHandler struct {
-	Handler[response.ProductResponse, *model.Product, *request.ProductRequest]
+	Handler[*model.Product, *request.ProductRequest, *response.ProductResponse]
 }
 
 func NewProductHandler (service *service.ProductService) *ProductHandler {
 	return &ProductHandler{
-		Handler: InitHandler(&service.Service),
+		Handler: InitHandler(
+			&service.Service,
+			func () *request.ProductRequest { return &request.ProductRequest{} },
+		),
 	}
 }

@@ -8,11 +8,15 @@ import (
 )
 
 type ProductService struct {
-	Service[response.ProductResponse, *model.Product, *request.ProductRequest]
+	Service[*model.Product, *request.ProductRequest, *response.ProductResponse]
 }
 
 func NewProductService(repo *repository.ProductRepository) *ProductService {
     return &ProductService{
-        Service: InitService[response.ProductResponse, *model.Product, *request.ProductRequest](&repo.Repository),
+        Service: InitService[*model.Product, *request.ProductRequest](
+			&repo.Repository,
+			func() *model.Product { return &model.Product{} },
+			func() *response.ProductResponse { return &response.ProductResponse{} },
+		),
     }
 }

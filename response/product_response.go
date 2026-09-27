@@ -2,6 +2,7 @@ package response
 
 import (
 	"projeto-teste/enum"
+	"projeto-teste/model"
 	"time"
 )
 
@@ -20,5 +21,17 @@ type ProductResponse struct {
 	Unit          enum.MeasurementUnit `json:"unit"`
 }
 
-func (p ProductResponse) Print() {
+func (p *ProductResponse) FromModel(m *model.Product) {
+	p.ID = m.ID
+	p.CategoryID = m.CategoryID
+	p.SubcategoryID = m.SubcategoryID
+	p.CreatedAt = m.CreatedAt
+	p.UpdatedAt = m.UpdatedAt
+	p.Name = m.Name
+	p.Brand = m.Brand
+	p.Description = m.Description
+	p.SellingPrice = m.SellingPrice
+	p.CostPrice = m.CostPrice
+	p.Stock = m.Stock
+	p.Unit = m.Unit
 }
