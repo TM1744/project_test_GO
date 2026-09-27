@@ -51,9 +51,6 @@ func (p *ProductRequest) Validate() error {
 	if err := validator.ValidIntHighThanZero(&p.SellingPrice, price); err != nil {
 		return err
 	}
-	if err := validator.ValidIntIsHighestThanValue(&p.SellingPrice, &p.CostPrice, price, cost); err != nil {
-		return err
-	}
 	if err := validator.ValidIntNotLessThanZero(&p.CostPrice, cost); err != nil {
 		return err
 	}

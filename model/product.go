@@ -2,6 +2,8 @@ package model
 
 import (
 	"projeto-teste/enum"
+	"projeto-teste/validator"
+
 	"gorm.io/gorm"
 )
 
@@ -27,6 +29,13 @@ func (p *Product) Fields() string {
 }
 
 func (p *Product) Validate() error {
+	price := "product selling price"
+	cost := "product cost price"
+
+	if err := validator.ValidIntIsHighestThanValue(&p.SellingPrice, &p.CostPrice, price, cost); err != nil {
+		return err
+	}
+	
 	return nil
 }
 

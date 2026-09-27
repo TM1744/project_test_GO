@@ -42,6 +42,12 @@ func (s *Service[Model, CRequest, Response]) Create(request CRequest) (Response,
 
 	entity = request.ToModel()
 
+	err = entity.Validate()
+
+	if err != nil {
+		return response, fail.ErrorToBadRequest(err)
+	}
+
 	err = s.Repository.Create(entity)
 
 	if err != nil {
