@@ -10,5 +10,6 @@ func InitProductRouter(router *gin.Engine, handler *handler.ProductHandler) {
 	routes.POST("", handler.Create)
 	routes.GET("/:id", handler.Read)
 	routes.DELETE("/:id", handler.Delete)
+	routes.PUT("/:id", handler.Update)
 }
 

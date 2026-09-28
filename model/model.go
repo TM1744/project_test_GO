@@ -1,7 +1,8 @@
 package model
 
-type IModel interface {
+type IModel [Model any] interface {
 	GetUniqueFields() string
-	Validate() error
+	ValidateCreate() error
+	ValidateUpdate(Model) error
+	MergeUpdate(Model)
 }
-

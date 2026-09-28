@@ -2,6 +2,6 @@ package response
 
 import "projeto-teste/model"
 
-type IResponse[Model model.IModel] interface {
+type IResponse[Model model.IModel[Model]] interface {
 	FromModel(Model)
 }

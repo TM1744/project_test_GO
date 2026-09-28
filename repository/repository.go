@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-type Repository[Model model.IModel] struct {
+type Repository[Model model.IModel[Model]] struct {
 	Database *gorm.DB
 }
 
-func InitRepository[Model model.IModel](database *gorm.DB) *Repository[Model] {
+func InitRepository[Model model.IModel[Model]](database *gorm.DB) *Repository[Model] {
 	return &Repository[Model]{Database: database}
 }
 
@@ -44,13 +44,27 @@ func (r *Repository[Model]) Read(entity Model, id *int64) error {
 	return nil
 }
 
-func (r *Repository[Model]) Delete(model Model, id *int64) error {
+func (r *Repository[Model]) Delete(entity Model, id *int64) error {
 
-	err := r.Database.Delete(model, id).Error
+	err := r.Database.Delete(entity, id).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fail.StringToBadRequest("record not found. Check the ID")
+		} else {
+			return fail.ErrorToInternalServerError(err)
+		}
+	}
+
+	return nil
+}
+
+func (r *Repository[Model]) Update(entity Model) error {
+	err := r.Database.Save(entity).Error
+
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return fail.StringToBadRequest(entity.GetUniqueFields() + " must be unique")
 		} else {
 			return fail.ErrorToInternalServerError(err)
 		}

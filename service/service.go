@@ -9,27 +9,28 @@ import (
 	"projeto-teste/validator"
 )
 
-type Service[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]] struct {
+type Service[Model model.IModel[Model], CRequest request.IRequest[Model], URequest request.IRequest[Model], Response response.IResponse[Model]] struct {
 	Repository  *repository.Repository[Model]
 	newModel    func() Model
 	newResponse func() Response
 }
 
 func InitService[
-	Model model.IModel,
+	Model model.IModel[Model],
 	CRequest request.IRequest[Model],
+	URequest request.IRequest[Model],
 	Response response.IResponse[Model]](
 	repository *repository.Repository[Model],
 	newModel func() Model,
-	newResponse func() Response) *Service[Model, CRequest, Response] {
-	return &Service[Model, CRequest, Response]{
+	newResponse func() Response) *Service[Model, CRequest, URequest, Response] {
+	return &Service[Model, CRequest, URequest, Response]{
 		Repository:  repository,
 		newModel:    newModel,
 		newResponse: newResponse,
 	}
 }
 
-func (s *Service[Model, CRequest, Response]) Create(request CRequest) (Response, error) {
+func (s *Service[Model, CRequest, URequest, Response]) Create(request CRequest) (Response, error) {
 	var err error
 	response := s.newResponse()
 	entity := s.newModel()
@@ -37,15 +38,15 @@ func (s *Service[Model, CRequest, Response]) Create(request CRequest) (Response,
 	err = request.Validate()
 
 	if err != nil {
-		return response, fail.ErrorToBadRequest(err)
+		return response, err
 	}
 
 	entity = request.ToModel()
 
-	err = entity.Validate()
+	err = entity.ValidateCreate()
 
 	if err != nil {
-		return response, fail.ErrorToBadRequest(err)
+		return response, err
 	}
 
 	err = s.Repository.Create(entity)
@@ -59,7 +60,7 @@ func (s *Service[Model, CRequest, Response]) Create(request CRequest) (Response,
 	return response, nil
 }
 
-func (s *Service[Model, CRequest, Response]) Read(id *int64) (Response, error) {
+func (s *Service[Model, CRequest, URequest, Response]) Read(id *int64) (Response, error) {
 	var err error
 	response := s.newResponse()
 
@@ -82,9 +83,9 @@ func (s *Service[Model, CRequest, Response]) Read(id *int64) (Response, error) {
 	return response, nil
 }
 
-func (s *Service[Model, CRequest, Response]) Delete(id *int64) error {
+func (s *Service[Model, CRequest, URequest, Response]) Delete(id *int64) error {
 	var err error
-	model := s.newModel()
+	entity := s.newModel()
 
 	err = validator.ValidIntNotLessThanZero(id, "ID")
 
@@ -92,11 +93,51 @@ func (s *Service[Model, CRequest, Response]) Delete(id *int64) error {
 		return err
 	}
 
-	err = s.Repository.Delete(model, id)
+	err = s.Repository.Delete(entity, id)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (s *Service[Model, CRequest, URequest, Response]) Update(request URequest, id *int64) (Response, error) {
+	var err error
+	response := s.newResponse()
+	entity := s.newModel()
+	oldRecord := s.newModel()
+
+	err = validator.ValidIntNotLessThanZero(id, "ID")
+	if err != nil {
+		return response, err
+	}
+
+	err = request.Validate()
+	if err != nil {
+		return response, err
+	}
+
+	err = s.Repository.Read(oldRecord, id)
+	if err != nil {
+		return response, err
+	}
+
+	entity = request.ToModel()
+
+	err = oldRecord.ValidateUpdate(entity)
+	if err != nil {
+		return response, err
+	}
+
+	entity.MergeUpdate(oldRecord)
+
+	err = s.Repository.Update(entity)
+	if err != nil {
+		return response, err
+	}
+
+	response.FromModel(entity)
+
+	return response, nil
 }

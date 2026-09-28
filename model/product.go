@@ -2,6 +2,7 @@ package model
 
 import (
 	"projeto-teste/enum"
+	"projeto-teste/fail"
 	"projeto-teste/validator"
 
 	"gorm.io/gorm"
@@ -28,7 +29,7 @@ func (p *Product) Fields() string {
 	return "ID: " + p.Name
 }
 
-func (p *Product) Validate() error {
+func (p *Product) ValidateCreate() error {
 	price := "product selling price"
 	cost := "product cost price"
 
@@ -37,6 +38,21 @@ func (p *Product) Validate() error {
 	}
 	
 	return nil
+}
+
+func (p *Product) ValidateUpdate(new *Product) error {
+	if p.ID != new.ID { return fail.StringToBadRequest("the parameter and request body IDs must be the same") }
+	return nil
+}
+
+func (p *Product) MergeUpdate(old *Product) {
+	p.Name = old.Name
+	p.Brand = old.Brand
+	p.CreatedAt = old.CreatedAt
+	p.DeletedAt = old.DeletedAt
+	p.ID = old.ID
+	p.Unit = old.Unit
+
 }
 
 // func (p *Product) ToString() (string, error) {

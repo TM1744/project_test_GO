@@ -12,22 +12,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]] struct {
-	Service     *service.Service[Model, CRequest, Response]
+type Handler[Model model.IModel[Model], CRequest request.IRequest[Model], URequest request.IRequest[Model], Response response.IResponse[Model]] struct {
+	Service     *service.Service[Model, CRequest, URequest, Response]
 	newCRequest func() CRequest
+	newURequest func() URequest
 }
 
-func InitHandler[Model model.IModel, CRequest request.IRequest[Model], Response response.IResponse[Model]](
-		service *service.Service[Model, CRequest, Response],
-		newCRequest func () CRequest,
-	) *Handler[Model, CRequest, Response] {
-	return &Handler[Model, CRequest, Response]{
-		Service: service,
+func InitHandler[Model model.IModel[Model], CRequest request.IRequest[Model],
+	URequest request.IRequest[Model], Response response.IResponse[Model]](
+	service *service.Service[Model, CRequest, URequest, Response],
+	newCRequest func() CRequest,
+	newURequest func() URequest,
+) *Handler[Model, CRequest, URequest, Response] {
+	return &Handler[Model, CRequest, URequest, Response]{
+		Service:     service,
 		newCRequest: newCRequest,
+		newURequest: newURequest,
 	}
 }
 
-func (h *Handler[Model, CRequest, Response]) Create(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response]) Create(ctx *gin.Context) {
 	request := h.newCRequest()
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -45,9 +49,9 @@ func (h *Handler[Model, CRequest, Response]) Create(ctx *gin.Context) {
 	sendObject(ctx, 201, response)
 }
 
-func (h *Handler[Model, CRequest, Response]) Read(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response]) Read(ctx *gin.Context) {
 	var err error
-	
+
 	id, err := catchID(ctx)
 
 	if err != nil {
@@ -65,7 +69,7 @@ func (h *Handler[Model, CRequest, Response]) Read(ctx *gin.Context) {
 	sendObject(ctx, 200, response)
 }
 
-func (h *Handler[Model, CRequest, Response]) Delete(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response]) Delete(ctx *gin.Context) {
 	var err error
 
 	id, err := catchID(ctx)
@@ -83,6 +87,30 @@ func (h *Handler[Model, CRequest, Response]) Delete(ctx *gin.Context) {
 	}
 
 	sendSuccess(ctx, 200)
+}
+
+func (h *Handler[Model, CRequest, URequest, Response]) Update(ctx *gin.Context) {
+	var err error
+	request := h.newURequest()
+
+	id, err := catchID(ctx)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		handleError(ctx, fail.ErrorToBadRequest(err))
+		return
+	}
+
+	response, err := h.Service.Update(request, id)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	sendObject(ctx, 200, response)
 }
 
 var (
