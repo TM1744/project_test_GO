@@ -8,7 +8,13 @@ import (
 )
 
 type ProductHandler struct {
-	*Handler[*model.Product, *request.ProductCreateRequest, *request.ProductUpdateRequest, *response.ProductResponse]
+	*Handler[
+		*model.Product,
+		*request.ProductCreateRequest,
+		*request.ProductUpdateRequest,
+		*response.ProductResponse,
+		*response.ProductSimpleResponse,
+	]
 }
 
 func NewProductHandler(service *service.ProductService) *ProductHandler {

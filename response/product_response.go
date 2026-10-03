@@ -8,8 +8,8 @@ import (
 
 type ProductResponse struct {
 	ID            uint                 `json:"id"`
-	CategoryID    *int64                `json:"category_id"`
-	SubcategoryID *int64                `json:"subcategory_id"`
+	CategoryID    *int64               `json:"category_id"`
+	SubcategoryID *int64               `json:"subcategory_id"`
 	CreatedAt     time.Time            `json:"created_at"`
 	UpdatedAt     time.Time            `json:"updated_at"`
 	Name          string               `json:"name"`
@@ -34,4 +34,34 @@ func (p *ProductResponse) FromModel(m *model.Product) {
 	p.CostPrice = m.CostPrice
 	p.Stock = m.Stock
 	p.Unit = m.Unit
+}
+
+func (p *ProductResponse) GetName() string {
+	return ""
+}
+
+type ProductSimpleResponse struct {
+	ID            uint                 `json:"id"`
+	CategoryID    *int64               `json:"category_id"`
+	SubcategoryID *int64               `json:"subcategory_id"`
+	Name          string               `json:"name"`
+	Brand         string               `json:"brand"`
+	SellingPrice  int64                `json:"selling_price"`
+	Stock         int64                `json:"stock"`
+	Unit          enum.MeasurementUnit `json:"unit"`
+}
+
+func (p *ProductSimpleResponse) FromModel(m *model.Product) {
+	p.ID = m.ID
+	p.CategoryID = m.CategoryID
+	p.SubcategoryID = m.SubcategoryID
+	p.Name = m.Name
+	p.Brand = m.Brand
+	p.SellingPrice = m.SellingPrice
+	p.Stock = m.Stock
+	p.Unit = m.Unit
+}
+
+func (p *ProductSimpleResponse) GetName() string {
+	return p.Name
 }

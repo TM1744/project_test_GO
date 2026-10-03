@@ -55,6 +55,10 @@ func (p *Product) MergeUpdate(old *Product) {
 
 }
 
+func (p *Product) GetName() string {
+	return p.Name
+}
+
 // func (p *Product) ToString() (string, error) {
 // 	id := converter.Int64ToString(int64(p.ID))
 // 	category := converter.Int64ToString(*p.CategoryID)

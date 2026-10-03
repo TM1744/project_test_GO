@@ -8,6 +8,7 @@ func InitProductRouter(router *gin.Engine, handler *handler.ProductHandler) {
 	routes := router.Group("/api/products")
 
 	routes.POST("", handler.Create)
+	routes.GET("", handler.ReadAll)
 	routes.GET("/:id", handler.Read)
 	routes.DELETE("/:id", handler.Delete)
 	routes.PUT("/:id", handler.Update)

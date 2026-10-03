@@ -8,30 +8,48 @@ import (
 	"projeto-teste/request"
 	"projeto-teste/response"
 	"projeto-teste/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Handler[Model model.IModel[Model], CRequest request.IRequest[Model], URequest request.IRequest[Model], Response response.IResponse[Model]] struct {
-	Service     *service.Service[Model, CRequest, URequest, Response]
+type Handler[
+	Model model.IModel[Model],
+	CRequest request.IRequest[Model],
+	URequest request.IRequest[Model],
+	Response response.IResponse[Model],
+	SResponse response.IResponse[Model],
+] struct {
+	Service     *service.Service[Model, CRequest, URequest, Response, SResponse]
 	newCRequest func() CRequest
 	newURequest func() URequest
 }
 
-func InitHandler[Model model.IModel[Model], CRequest request.IRequest[Model],
-	URequest request.IRequest[Model], Response response.IResponse[Model]](
-	service *service.Service[Model, CRequest, URequest, Response],
+func InitHandler[
+	Model model.IModel[Model],
+	CRequest request.IRequest[Model],
+	URequest request.IRequest[Model],
+	Response response.IResponse[Model],
+	SResponse response.IResponse[Model],
+](
+	service *service.Service[Model, CRequest, URequest, Response, SResponse],
 	newCRequest func() CRequest,
 	newURequest func() URequest,
-) *Handler[Model, CRequest, URequest, Response] {
-	return &Handler[Model, CRequest, URequest, Response]{
+) *Handler[
+	Model,
+	CRequest,
+	URequest,
+	Response,
+	SResponse,
+] {
+	return &Handler[Model, CRequest, URequest, Response, SResponse]{
 		Service:     service,
 		newCRequest: newCRequest,
 		newURequest: newURequest,
 	}
 }
 
-func (h *Handler[Model, CRequest, URequest, Response]) Create(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response, SResponse]) Create(ctx *gin.Context) {
 	request := h.newCRequest()
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -49,7 +67,24 @@ func (h *Handler[Model, CRequest, URequest, Response]) Create(ctx *gin.Context) 
 	sendObject(ctx, 201, response)
 }
 
-func (h *Handler[Model, CRequest, URequest, Response]) Read(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response, SResponse]) ReadAll(ctx *gin.Context) {
+	println("Busca de parâmetros ainda não realizada")
+
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+
+	println("Parâmetros buscados")
+
+	response, err := h.Service.ReadAll(&page, &limit)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	sendObject(ctx, 200, response)
+}
+
+func (h *Handler[Model, CRequest, URequest, Response, SResponse]) Read(ctx *gin.Context) {
 	var err error
 
 	id, err := catchID(ctx)
@@ -69,7 +104,7 @@ func (h *Handler[Model, CRequest, URequest, Response]) Read(ctx *gin.Context) {
 	sendObject(ctx, 200, response)
 }
 
-func (h *Handler[Model, CRequest, URequest, Response]) Delete(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response, SResponse]) Delete(ctx *gin.Context) {
 	var err error
 
 	id, err := catchID(ctx)
@@ -89,7 +124,7 @@ func (h *Handler[Model, CRequest, URequest, Response]) Delete(ctx *gin.Context) 
 	sendSuccess(ctx, 200)
 }
 
-func (h *Handler[Model, CRequest, URequest, Response]) Update(ctx *gin.Context) {
+func (h *Handler[Model, CRequest, URequest, Response, SResponse]) Update(ctx *gin.Context) {
 	var err error
 	request := h.newURequest()
 

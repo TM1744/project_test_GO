@@ -9,11 +9,17 @@ import (
 )
 
 type Repository[Model model.IModel[Model]] struct {
-	Database *gorm.DB
+	Database     *gorm.DB
 }
 
-func InitRepository[Model model.IModel[Model]](database *gorm.DB) *Repository[Model] {
-	return &Repository[Model]{Database: database}
+func InitRepository[
+	Model model.IModel[Model],
+](
+	database *gorm.DB,
+) *Repository[Model] {
+	return &Repository[Model]{
+		Database:     database,
+	}
 }
 
 func (r *Repository[Model]) Create(entity Model) error {
@@ -25,6 +31,20 @@ func (r *Repository[Model]) Create(entity Model) error {
 		} else {
 			return fail.ErrorToInternalServerError(err)
 		}
+	}
+
+	return nil
+}
+
+func (r *Repository[Model]) ReadAll(totalItems *int64, limit *int, offset *int, entities *[]Model) error {
+	var entity Model
+
+	if err := r.Database.Model(entity).Count(totalItems).Error; err != nil {
+		return fail.StringToInternalServerError("failed to perform the total record count: " + err.Error())
+	}
+
+	if err := r.Database.Model(entity).Limit(*limit).Offset(*offset).Find(&entities).Error; err != nil {
+		return fail.StringToInternalServerError("failed to retrieve all records")
 	}
 
 	return nil
