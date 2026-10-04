@@ -149,7 +149,7 @@ func (s *Service[Model, CRequest, URequest, Response, SResponse]) Read(id *int64
 	if err != nil {
 		return response, err
 	}
-
+	
 	response.FromModel(entity)
 
 	return response, nil
@@ -204,7 +204,7 @@ func (s *Service[Model, CRequest, URequest, Response, SResponse]) Update(request
 
 	entity.MergeUpdate(oldRecord)
 
-	err = s.Repository.Update(entity)
+	err = s.Repository.Update(entity, oldRecord)
 	if err != nil {
 		return response, err
 	}

@@ -51,6 +51,7 @@ func initSQLite () (*gorm.DB, error) {
 		&model.Adress{},
 		&model.SaleItem{},
 		&model.Sale{},
+		&model.Audit{},
 	)
 
 	if err != nil {

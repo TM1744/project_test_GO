@@ -26,8 +26,14 @@ func main() {
 	productService := service.NewProductService(productRepo)
 	productHandler := handler.NewProductHandler(productService)
 
+	auditRepo := repository.NewAuditRepository(db)
+	auditService := service.NewAuditService(auditRepo)
+	auditHandler := handler.NewAuditHandler(auditService)
+
+
 	
 	router.InitProductRouter(engine, productHandler)
+	router.InitAuditRouter(engine, auditHandler)
 	
 	engine.Run(":8080")
 }

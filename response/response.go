@@ -4,7 +4,6 @@ import "projeto-teste/model"
 
 type IResponse[Model model.IModel[Model]] interface {
 	FromModel(Model)
-	GetName() string
 }
 
 type Pagination struct {

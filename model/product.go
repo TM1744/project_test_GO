@@ -1,9 +1,11 @@
 package model
 
 import (
+	"projeto-teste/converter"
 	"projeto-teste/enum"
 	"projeto-teste/fail"
 	"projeto-teste/validator"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -25,8 +27,24 @@ func (p *Product) GetUniqueFields() string {
 	return "name"
 }
 
-func (p *Product) Fields() string {
-	return "ID: " + p.Name
+func (p *Product) GetEntityType() enum.Entity {
+	return enum.Product
+}
+
+func (p *Product) ToString() string {
+	return ("ID: " + strconv.Itoa(int(p.ID)) +
+		"\nCreated_At: " + p.CreatedAt.String() +
+		"\nUpdated_At: " + p.UpdatedAt.String() +
+		"\nDeleted_At: " + p.DeletedAt.Time.String() +
+		"\nCategory_ID: " + converter.PInt64ToString(p.CategoryID) +
+		"\nSubcategory_ID: " + converter.PInt64ToString(p.SubcategoryID) +
+		"\nName: " + p.Name +
+		"\nBrand: " + p.Brand +
+		"\nDescription: " + p.Description +
+		"\nSelling_Price: " + converter.Int64ToString(p.SellingPrice) +
+		"\nCost_Price: " + converter.Int64ToString(p.CostPrice) +
+		"\nStock: " + converter.Int64ToString(p.Stock) +
+		"\nUnit: " + string(p.Unit))
 }
 
 func (p *Product) ValidateCreate() error {
@@ -36,12 +54,14 @@ func (p *Product) ValidateCreate() error {
 	if err := validator.ValidIntIsHighestThanValue(&p.SellingPrice, &p.CostPrice, price, cost); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
 func (p *Product) ValidateUpdate(new *Product) error {
-	if p.ID != new.ID { return fail.StringToBadRequest("the parameter and request body IDs must be the same") }
+	if p.ID != new.ID {
+		return fail.StringToBadRequest("the parameter and request body IDs must be the same")
+	}
 	return nil
 }
 
@@ -52,34 +72,20 @@ func (p *Product) MergeUpdate(old *Product) {
 	p.DeletedAt = old.DeletedAt
 	p.ID = old.ID
 	p.Unit = old.Unit
-
 }
 
-func (p *Product) GetName() string {
-	return p.Name
+func (p *Product) OnCreate(db *gorm.DB) error {
+	if err := auditCreation(db, p); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// func (p *Product) ToString() (string, error) {
-// 	id := converter.Int64ToString(int64(p.ID))
-// 	category := converter.Int64ToString(*p.CategoryID)
-// 	subcategory := converter.Int64ToString(*p.SubcategoryID)
-// 	selling := converter.Int64ToString(p.SellingPrice)
-// 	cost := converter.Int64ToString(p.CostPrice)
-// 	stock := converter.Int64ToString(p.Stock)
-// 	unit := p.Unit
+func (p *Product) OnUpdate(db *gorm.DB, old *Product) error {
+	if err := auditUpdate(db, old, p); err != nil {
+		return err
+	}
 
-// 	return ("ID: " + id +
-// 		"\nCategory_ID: " + category +
-// 		"\nSubcategory_ID: " + subcategory +
-// 		"\nName: " + p.Name +
-// 		"\nBrand: " + p.Brand +
-// 		"\nDescription: " + p.Description +
-// 		"\nSelling_Price: " + selling +
-// 		"\nCost_Price: " + cost +
-// 		"\nStock: " + stock +
-// 		"\nUnit: " + p.Unit +
-// 		"\nCreated_At: " + p.CreatedAt.String() +
-// 		"\nUpdated_At: " + p.UpdatedAt.String() +
-// 		"\nDeleted_At: " + p.DeletedAt.Time.String())
-
-// }
+	return nil
+}

@@ -33,6 +33,10 @@ func (r *Repository[Model]) Create(entity Model) error {
 		}
 	}
 
+	if err := entity.OnCreate(r.Database); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -79,7 +83,7 @@ func (r *Repository[Model]) Delete(entity Model, id *int64) error {
 	return nil
 }
 
-func (r *Repository[Model]) Update(entity Model) error {
+func (r *Repository[Model]) Update(entity Model, old Model) error {
 	err := r.Database.Save(entity).Error
 
 	if err != nil {
@@ -88,6 +92,10 @@ func (r *Repository[Model]) Update(entity Model) error {
 		} else {
 			return fail.ErrorToInternalServerError(err)
 		}
+	}
+
+	if err := entity.OnUpdate(r.Database, old); err != nil {
+		return err
 	}
 
 	return nil

@@ -22,3 +22,19 @@ func StringToInt64 (value string) (number int64, err error) {
 func Int64ToString (value int64) (text string) {
 	return strconv.FormatInt(value, 10)
 }
+
+func PInt64ToString (value *int64) string {
+	if value == nil {
+		return "NULL"
+	}
+
+	return strconv.FormatInt(*value, 10)
+}
+
+func PIntToString (value *int) string {
+	if value == nil {
+		return "NULL"
+	}
+
+	return strconv.Itoa(*value)
+}
