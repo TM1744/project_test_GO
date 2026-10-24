@@ -40,17 +40,7 @@ func initSQLite () (*gorm.DB, error) {
 	}
 
 	err = db.AutoMigrate(
-		&model.Category{},
-		&model.Subcategory{},
 		&model.Product{},
-		&model.LegalEntity{},
-		&model.NaturalPerson{},
-		&model.User{},
-		&model.Client{},
-		&model.Phone{},
-		&model.Adress{},
-		&model.SaleItem{},
-		&model.Sale{},
 		&model.Audit{},
 	)
 

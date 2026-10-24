@@ -36,10 +36,6 @@ func (p *ProductResponse) FromModel(m *model.Product) {
 	p.Unit = m.Unit
 }
 
-func (p *ProductResponse) GetName() string {
-	return ""
-}
-
 type ProductSimpleResponse struct {
 	ID            uint                 `json:"id"`
 	CategoryID    *int64               `json:"category_id"`
@@ -60,8 +56,4 @@ func (p *ProductSimpleResponse) FromModel(m *model.Product) {
 	p.SellingPrice = m.SellingPrice
 	p.Stock = m.Stock
 	p.Unit = m.Unit
-}
-
-func (p *ProductSimpleResponse) GetName() string {
-	return p.Name
 }

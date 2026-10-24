@@ -3,7 +3,7 @@ package response
 import "projeto-teste/model"
 
 type IResponse[Model model.IModel[Model]] interface {
-	FromModel(Model)
+	FromModel(Model) // Transfora a entidade na sua respectiva resposta em JSON
 }
 
 type Pagination struct {

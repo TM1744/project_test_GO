@@ -42,7 +42,7 @@ func (p *ProductCreateRequest) Validate() error {
 		return errors.New("measurement unit type is invalid")
 	}
 
-	validateCommonFields(&p.ProductRequest)
+	validateProductCommonFields(&p.ProductRequest)
 
 	return nil
 }
@@ -75,7 +75,7 @@ func (p *ProductUpdateRequest) Validate() error {
 		return err
 	}
 
-	validateCommonFields(&p.ProductRequest)
+	validateProductCommonFields(&p.ProductRequest)
 
 	return nil
 }
@@ -92,7 +92,7 @@ func (p *ProductUpdateRequest) ToModel() *model.Product {
 	}
 }
 
-func validateCommonFields(p *ProductRequest) error {
+func validateProductCommonFields(p *ProductRequest) error {
 	category := "category ID"
 	subcategory := "subcategory ID"
 	description := "product description"

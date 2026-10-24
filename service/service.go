@@ -159,15 +159,15 @@ func (s *Service[Model, CRequest, URequest, Response, SResponse]) Delete(id *int
 	var err error
 	entity := s.newModel()
 
-	err = validator.ValidIntNotLessThanZero(id, "ID")
-
-	if err != nil {
+	if err = validator.ValidIntNotLessThanZero(id, "ID"); err != nil {
 		return err
 	}
 
-	err = s.Repository.Delete(entity, id)
+	if err = s.Repository.Read(entity, id); err != nil {
+		return err
+	}
 
-	if err != nil {
+	if err = s.Repository.Delete(entity); err != nil {
 		return err
 	}
 

@@ -19,6 +19,6 @@ func (a *Audit) GetUniqueFields() string         { return "none" }
 func (a *Audit) ToString() string                { return "" }
 func (a *Audit) ValidateCreate() error           { return nil }
 func (a *Audit) ValidateUpdate(*Audit) error     { return nil }
-func (a *Audit) MergeUpdate(*Audit)              { return }
+func (a *Audit) MergeUpdate(*Audit)              {}
 func (a *Audit) OnCreate(*gorm.DB) error         { return nil }
 func (a *Audit) OnUpdate(*gorm.DB, *Audit) error { return nil }

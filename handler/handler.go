@@ -68,12 +68,8 @@ func (h *Handler[Model, CRequest, URequest, Response, SResponse]) Create(ctx *gi
 }
 
 func (h *Handler[Model, CRequest, URequest, Response, SResponse]) ReadAll(ctx *gin.Context) {
-	println("Busca de parâmetros ainda não realizada")
-
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
-
-	println("Parâmetros buscados")
 
 	response, err := h.Service.ReadAll(&page, &limit)
 	if err != nil {

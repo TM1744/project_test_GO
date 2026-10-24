@@ -6,7 +6,6 @@ import (
 	"projeto-teste/fail"
 	"projeto-teste/validator"
 	"strconv"
-
 	"gorm.io/gorm"
 )
 
@@ -33,18 +32,18 @@ func (p *Product) GetEntityType() enum.Entity {
 
 func (p *Product) ToString() string {
 	return ("ID: " + strconv.Itoa(int(p.ID)) +
-		"\nCreated_At: " + p.CreatedAt.String() +
-		"\nUpdated_At: " + p.UpdatedAt.String() +
-		"\nDeleted_At: " + p.DeletedAt.Time.String() +
-		"\nCategory_ID: " + converter.PInt64ToString(p.CategoryID) +
-		"\nSubcategory_ID: " + converter.PInt64ToString(p.SubcategoryID) +
-		"\nName: " + p.Name +
-		"\nBrand: " + p.Brand +
-		"\nDescription: " + p.Description +
-		"\nSelling_Price: " + converter.Int64ToString(p.SellingPrice) +
-		"\nCost_Price: " + converter.Int64ToString(p.CostPrice) +
-		"\nStock: " + converter.Int64ToString(p.Stock) +
-		"\nUnit: " + string(p.Unit))
+		" | Created_At: " + p.CreatedAt.String() +
+		" | Updated_At: " + p.UpdatedAt.String() +
+		" | Deleted_At: " + p.DeletedAt.Time.String() +
+		" | Category_ID: " + converter.PInt64ToString(p.CategoryID) +
+		" | Subcategory_ID: " + converter.PInt64ToString(p.SubcategoryID) +
+		" | Name: " + p.Name +
+		" | Brand: " + p.Brand +
+		" | Description: " + p.Description +
+		" | Selling_Price: " + converter.Int64ToString(p.SellingPrice) +
+		" | Cost_Price: " + converter.Int64ToString(p.CostPrice) +
+		" | Stock: " + converter.Int64ToString(p.Stock) +
+		" | Unit: " + string(p.Unit))
 }
 
 func (p *Product) ValidateCreate() error {
@@ -75,17 +74,9 @@ func (p *Product) MergeUpdate(old *Product) {
 }
 
 func (p *Product) OnCreate(db *gorm.DB) error {
-	if err := auditCreation(db, p); err != nil {
-		return err
-	}
-
 	return nil
 }
-
+ 
 func (p *Product) OnUpdate(db *gorm.DB, old *Product) error {
-	if err := auditUpdate(db, old, p); err != nil {
-		return err
-	}
-
 	return nil
 }
